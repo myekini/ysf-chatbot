@@ -7,7 +7,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Build the Flask Backend
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
