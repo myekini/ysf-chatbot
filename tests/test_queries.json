@@ -1,0 +1,44 @@
+{
+  "queries": [
+    {
+      "question": "What courses does YSJ offer?",
+      "expected_keywords": ["course", "program", "degree", "study"]
+    },
+    {
+      "question": "How do I apply to YSJ?",
+      "expected_keywords": ["apply", "application", "admission", "requirements"]
+    },
+    {
+      "question": "What student services are available?",
+      "expected_keywords": ["service", "support", "help", "counseling"]
+    },
+    {
+      "question": "What are the tuition fees?",
+      "expected_keywords": ["fee", "tuition", "cost", "payment"]
+    },
+    {
+      "question": "Where is the library located?",
+      "expected_keywords": ["library", "location", "campus", "map"]
+    },
+    {
+      "question": "What accommodation options are there?",
+      "expected_keywords": ["accommodation", "housing", "dormitory", "residence"]
+    },
+    {
+      "question": "How do I contact student support?",
+      "expected_keywords": ["contact", "email", "phone", "support"]
+    },
+    {
+      "question": "What are the term dates?",
+      "expected_keywords": ["term", "date", "academic calendar", "semester"]
+    },
+    {
+      "question": "What scholarships are available?",
+      "expected_keywords": ["scholarship", "funding", "financial aid", "grant"]
+    },
+    {
+      "question": "How do I access my student portal?",
+      "expected_keywords": ["portal", "login", "account", "access"]
+    }
+  ]
+}
