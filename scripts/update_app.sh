@@ -6,6 +6,11 @@ cd ~/ysf-chatbot
 
 # Pulling changes is handled by the CI pipeline before running this script
 
+# Aggressive cleanup to free disk space
+echo "Cleaning up Docker resources..."
+docker system prune -af --volumes || true
+docker builder prune -af || true
+
 # Stop running containers to release ports
 docker compose down || true
 
