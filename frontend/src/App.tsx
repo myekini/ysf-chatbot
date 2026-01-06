@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User, Paperclip, X, GraduationCap, ChevronRight } from 'lucide-react';
 import { Button } from './components/ui/button';
+import { Typewriter } from './components/ui/typewriter';
 import { cn } from './lib/utils';
 
 interface Message {
@@ -232,7 +233,13 @@ const YSJChatbot: React.FC = () => {
                           : 'bg-muted text-foreground'
                       )}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      {message.role === 'assistant' ? (
+                        <div className="text-sm">
+                          <Typewriter text={message.content} speed={10} onComplete={scrollToBottom} />
+                        </div>
+                      ) : (
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      )}
                       <p className="text-xs opacity-70 mt-1">
                         {message.timestamp.toLocaleTimeString()}
                       </p>
