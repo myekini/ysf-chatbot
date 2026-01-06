@@ -73,7 +73,6 @@ const YSJChatbot: React.FC = () => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-      setIsTyping(false);
     }
   };
 
@@ -117,6 +116,39 @@ const YSJChatbot: React.FC = () => {
     }
   };
 
+  const handleQuickAction = (text: string) => {
+    // We update input then send immediately
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: text,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+    
+    // API Call logic extracted or duplicated for immediate send
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response || 'Sorry, I encountered an error.',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      setIsTyping(true);
+    })
+    .catch(err => console.error(err))
+    .finally(() => setIsLoading(false));
+  };
+
   const clearChat = async () => {
     try {
       await fetch('/api/clear', { method: 'POST' });
@@ -129,7 +161,7 @@ const YSJChatbot: React.FC = () => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
   };
 
@@ -137,7 +169,7 @@ const YSJChatbot: React.FC = () => {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       {/* Header */}
-      <header className="border-b border-border bg-card px-6 py-5 shadow-sm relative z-10">
+      <header className="border-b border-border bg-card px-6 py-3 shadow-sm relative z-10">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           {/* Logo Section */}
           <div className="flex items-center gap-4 select-none">
@@ -148,7 +180,7 @@ const YSJChatbot: React.FC = () => {
             </div>
             
             {/* Vertical Divider */}
-            <div className="w-[1px] h-12 bg-foreground/20"></div>
+            <div className="w-[1px] h-10 bg-foreground/20"></div>
             
             {/* Text Block */}
             <div className="flex flex-col justify-center">
@@ -196,14 +228,14 @@ const YSJChatbot: React.FC = () => {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8 w-full max-w-lg">
                   <button 
-                    onClick={() => setInput("Where can I find the library?")}
+                    onClick={() => handleQuickAction("Where can I find the library?")}
                     className="flex items-center justify-between p-4 rounded-xl border border-border bg-card hover:bg-secondary/50 transition-colors text-left group"
                   >
                     <span className="text-sm font-medium text-foreground">Where is the library?</span>
                     <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   </button>
                   <button 
-                    onClick={() => setInput("How do I submit my assignment?")}
+                    onClick={() => handleQuickAction("How do I submit my assignment?")}
                     className="flex items-center justify-between p-4 rounded-xl border border-border bg-card hover:bg-secondary/50 transition-colors text-left group"
                   >
                     <span className="text-sm font-medium text-foreground">Submit assignment</span>
@@ -213,7 +245,7 @@ const YSJChatbot: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {messages.map((message) => (
+                {messages.map((message, index) => (
                   <div
                     key={message.id}
                     className={cn(
@@ -260,16 +292,21 @@ const YSJChatbot: React.FC = () => {
                   </div>
                 ))}
                 
-                {isTyping && (
-                  <div className="flex gap-4 justify-start">
+                {isLoading && (
+                  <div className="flex gap-4 justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground flex-shrink-0">
                       <Bot className="w-4 h-4" />
                     </div>
-                    <div className="bg-muted text-foreground rounded-lg px-4 py-3">
-                      <div className="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                    <div className="bg-muted text-foreground rounded-2xl px-4 py-3 shadow-sm border border-border/50">
+                      <div className="flex items-center gap-3">
+                        <div className="flex gap-1">
+                          <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                          <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                          <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce"></span>
+                        </div>
+                        <span className="text-xs font-medium text-muted-foreground animate-pulse">
+                          Searching Academic Documents...
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -279,25 +316,25 @@ const YSJChatbot: React.FC = () => {
             )}
           </div>
 
-          {/* Input */}
-          <div className="border-t border-border bg-card px-6 py-4">
-            <div className="flex gap-3">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".pdf"
-                className="hidden"
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-shrink-0"
-              >
-                <Paperclip className="w-4 h-4" />
-              </Button>
-              <div className="flex-1 relative">
+          <div className="border-t border-border bg-card px-6 py-6">
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center gap-2 bg-secondary/15 rounded-2xl p-2 focus-within:ring-1 focus-within:ring-primary/10 transition-all">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".pdf"
+                  className="hidden"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="h-10 w-10 text-muted-foreground hover:text-primary hover:bg-transparent shrink-0"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </Button>
+                
                 <input
                   type="text"
                   value={input}
@@ -305,26 +342,29 @@ const YSJChatbot: React.FC = () => {
                   onKeyPress={handleKeyPress}
                   placeholder="Ask a question..."
                   disabled={isLoading || isTyping}
-                  className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-muted-foreground/50 h-auto py-2 text-base shadow-none"
+                  className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-2 py-2 text-base placeholder:text-muted-foreground/40"
                 />
+
+                <Button 
+                  type="submit" 
+                  size="icon"
+                  onClick={handleSendMessage}
+                  disabled={!input.trim() || isLoading || isTyping}
+                  className={cn(
+                    "h-10 w-10 rounded-xl transition-all duration-300 shrink-0",
+                    input.trim() && !isLoading && !isTyping 
+                      ? "bg-primary text-primary-foreground shadow-sm" 
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  <Send className="w-5 h-5" />
+                </Button>
               </div>
-              <Button 
-                type="submit" 
-                size="icon"
-                onClick={sendMessage}
-                disabled={!input.trim() || isLoading || isTyping}
-                className={cn(
-                  "h-8 w-8 rounded-full transition-all duration-200 shrink-0",
-                  input.trim() && !isLoading && !isTyping ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-muted text-muted-foreground hover:bg-muted"
-                )}
-              >
-                <Send className="w-4 h-4" />
-              </Button>
             </div>
-            <div className="text-center mt-3 text-[10px] text-muted-foreground/60 leading-tight">
-              <div className="mt-2 pt-2 border-t border-border/40 w-full max-w-xs mx-auto">
-                <p className="font-semibold">Designed & Built by Preowei Precious Elemson (240251549)</p>
-                <p>MSc Data Science • Applied Research Project • 2025/2026</p>
+            <div className="text-center mt-4 text-[11px] text-muted-foreground/80 leading-normal">
+              <div className="pt-3 border-t border-border/40 w-full max-w-sm mx-auto">
+                <p className="font-bold text-foreground/90">Designed & Built by Preowei Precious Elemson (240251549)</p>
+                <p>MSc Data Science • Applied Research Project • 2025/2026 Academic Session</p>
               </div>
             </div>
           </div>

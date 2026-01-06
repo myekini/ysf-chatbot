@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface TypewriterProps {
   text: string;
@@ -32,17 +34,13 @@ export const Typewriter: React.FC<TypewriterProps> = ({
     }, speed);
 
     return () => clearInterval(intervalId);
-  }, [text, speed, onComplete]);
-
-  // If complete, just show full text to avoid any sync issues
-  if (isComplete) {
-    return <span className="whitespace-pre-wrap">{text}</span>;
-  }
+  }, [text, speed]);
 
   return (
-    <span className="whitespace-pre-wrap">
-      {displayedText}
-      <span className="animate-pulse">|</span>
-    </span>
+    <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {displayedText + (!isComplete ? ' ▎' : '')}
+      </ReactMarkdown>
+    </div>
   );
 };
