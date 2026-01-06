@@ -29,6 +29,9 @@ jobs:
             echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" > .env
             echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
             
+            # Kill any process using port 80
+            sudo fuser -k 80/tcp || true
+            
             # Run the update script
             chmod +x scripts/update_app.sh
             ./scripts/update_app.sh
