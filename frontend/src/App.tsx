@@ -302,7 +302,6 @@ const YSJChatbot: React.FC = () => {
               </Button>
             </div>
             <div className="text-center mt-3 text-[10px] text-muted-foreground/60 leading-tight">
-              <p>Powered by AI • Upload PDFs to expand knowledge base</p>
               <div className="mt-2 pt-2 border-t border-border/40 w-full max-w-xs mx-auto">
                 <p className="font-semibold">Designed & Built by Preowei Precious Elemson (240251549)</p>
                 <p>MSc Data Science • Applied Research Project • 2025/2026</p>
