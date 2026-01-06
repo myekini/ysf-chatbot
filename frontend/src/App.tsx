@@ -27,8 +27,9 @@ const YSJChatbot: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!input.trim() || isLoading || isTyping) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -40,7 +41,6 @@ const YSJChatbot: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    setIsTyping(true);
 
     try {
       const response = await fetch('/api/chat', {
@@ -61,6 +61,7 @@ const YSJChatbot: React.FC = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      setIsTyping(true); // Start typing effect for the new message
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = {
@@ -235,7 +236,14 @@ const YSJChatbot: React.FC = () => {
                     >
                       {message.role === 'assistant' ? (
                         <div className="text-sm">
-                          <Typewriter text={message.content} speed={10} onComplete={scrollToBottom} />
+                          <Typewriter 
+                            text={message.content} 
+                            speed={10} 
+                            onComplete={() => {
+                              scrollToBottom();
+                              if (index === messages.length - 1) setIsTyping(false);
+                            }} 
+                          />
                         </div>
                       ) : (
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -296,14 +304,19 @@ const YSJChatbot: React.FC = () => {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask a question..."
-                  className="w-full px-4 py-3 bg-secondary/30 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none transition-all placeholder:text-muted-foreground/70"
-                  disabled={isLoading}
+                  disabled={isLoading || isTyping}
+                  className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-muted-foreground/50 h-auto py-2 text-base shadow-none"
                 />
               </div>
-              <Button
+              <Button 
+                type="submit" 
+                size="icon"
                 onClick={sendMessage}
-                disabled={!input.trim() || isLoading}
-                className="flex-shrink-0"
+                disabled={!input.trim() || isLoading || isTyping}
+                className={cn(
+                  "h-8 w-8 rounded-full transition-all duration-200 shrink-0",
+                  input.trim() && !isLoading && !isTyping ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-muted text-muted-foreground hover:bg-muted"
+                )}
               >
                 <Send className="w-4 h-4" />
               </Button>
