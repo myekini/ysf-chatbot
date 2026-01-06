@@ -22,7 +22,7 @@ sudo systemctl stop nginx || true
 
 # Update docker-compose to expose port 5000 instead of 80
 echo "Updating Docker Compose configuration..."
-cd ~/ysf-chatbot
+cd /home/ec2-user/ysf-chatbot
 cat > docker-compose.yml << 'EOF'
 version: '3.8'
 
