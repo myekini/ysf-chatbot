@@ -38,10 +38,25 @@ services:
     restart: always
 EOF
 
+
+# Define Docker Compose command
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+else
+    echo "Docker Compose not found. Installing standalone binary..."
+    sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    DOCKER_COMPOSE_CMD="docker-compose"
+fi
+
+echo "Using Docker Compose command: $DOCKER_COMPOSE_CMD"
+
 # Restart Docker containers with new port mapping
 echo "Restarting Docker containers..."
-docker compose down || true
-docker compose up -d --build
+$DOCKER_COMPOSE_CMD down || true
+$DOCKER_COMPOSE_CMD up -d --build
 
 # Copy Nginx configuration
 echo "Configuring Nginx..."
