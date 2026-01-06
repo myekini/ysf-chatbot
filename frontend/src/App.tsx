@@ -301,9 +301,13 @@ const YSJChatbot: React.FC = () => {
                 <Send className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Powered by AI • Upload PDFs to expand knowledge base
-            </p>
+            <div className="text-center mt-3 text-[10px] text-muted-foreground/60 leading-tight">
+              <p>Powered by AI • Upload PDFs to expand knowledge base</p>
+              <div className="mt-2 pt-2 border-t border-border/40 w-full max-w-xs mx-auto">
+                <p className="font-semibold">Designed & Built by Preowei Precious Elemson (240251549)</p>
+                <p>MSc Data Science • Applied Research Project • 2025/2026</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
