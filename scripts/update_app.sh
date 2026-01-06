@@ -4,8 +4,7 @@ set -e
 # Navigate to app directory
 cd ~/ysf-chatbot
 
-# Pull latest changes
-git pull origin main
+# Pulling changes is handled by the CI pipeline before running this script
 
 # Stop running containers to release ports
 docker compose down || true
