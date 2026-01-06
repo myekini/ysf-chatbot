@@ -9,7 +9,7 @@ cd ~/ysf-chatbot
 # Check if we need to rebuild (Dockerfile or requirements.txt changed)
 REBUILD_NEEDED=false
 
-if git diff HEAD@{1} HEAD --name-only | grep -q "Dockerfile\|requirements.txt\|frontend/package"; then
+if git diff HEAD@{1} HEAD --name-only | grep -q "Dockerfile\|requirements.txt\|frontend/\|src/\|app.py"; then
     echo "📦 Dependencies changed - full rebuild required"
     REBUILD_NEEDED=true
 else
